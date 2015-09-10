@@ -11,11 +11,12 @@ site = mwclient.Site('172.18.64.38', '/')
 site.login('pandrel', '4357pja')
 
 #/ Set up an empty array to capture page list
-pages = ['Sitesheets:AKFA1']
 #/ Process commandline arguments into pages
-#for arg in sys.argv:
-#    pages.append(arg)
-#    print arg
+pages = []
+for arg in sys.argv:
+    if arg == "process-page.py":
+        continue
+    pages.append("Sitesheets:" + arg)
 
 def processPageText(text, page):
     data = {}
@@ -26,9 +27,11 @@ def processPageText(text, page):
         item = str(item)
         soup = BeautifulSoup(item, "lxml")
         ckey = item.split("=", 1)
+        if ckey[0].startswith("<!--"):
+            continue
         if ckey[0] != 'comments':
             item = soup.text
-            key, value= item.split("=",1)
+            key, value = item.split("=",1)
             value = value.rstrip('\n')
         else:
             key, value = item.split("=",1)
@@ -36,7 +39,11 @@ def processPageText(text, page):
         data[key.strip()] = value.strip()
     print json.dumps(data)
     print data[u"comments"]
-
+    client = MongoClient("mongodb://sitedata:Gibson9371@172.18.64.35/sitesheets")
+    db = client.get_default_database()
+    sitedata = db['sitedata']
+    sitedata.insert_one(data)
+    
 for page in pages:
     mpage = site.Pages[page]
     text = mpage.text()
