@@ -2,6 +2,7 @@ import mwclient
 import mwparserfromhell
 import sys
 import json
+import unidecode
 from bs4 import BeautifulSoup
 from pymongo import MongoClient
 
@@ -16,6 +17,8 @@ pages = []
 for arg in sys.argv:
     if arg == "process-page.py":
         continue
+    if arg == "/home/pandrel/sitesheets-database/process-page.py":
+        continue
     pages.append("Sitesheets:" + arg)
 
 def processPageText(text, page):
@@ -24,7 +27,7 @@ def processPageText(text, page):
     templates = wikicode.filter_templates()
     template = templates[0]
     for item in template.params:
-        item = str(item)
+        item = unidecode.unidecode(item)
         soup = BeautifulSoup(item, "lxml")
         ckey = item.split("=", 1)
         if ckey[0].startswith("<!--"):
@@ -37,11 +40,12 @@ def processPageText(text, page):
             key, value = item.split("=",1)
             value = value.rstrip('\n')
         data[key.strip()] = value.strip()
-    print json.dumps(data)
-    print data[u"comments"]
+#    print json.dumps(data)
+#    print data[u"comm
     client = MongoClient("mongodb://sitedata:Gibson9371@172.18.64.35/sitesheets")
     db = client.get_default_database()
     sitedata = db['sitedata']
+    sitedata.delete_one({"site_id" : data[u"site_id"]})
     sitedata.insert_one(data)
     
 for page in pages:
