@@ -40,8 +40,7 @@ def processPageText(text, page):
             key, value = item.split("=",1)
             value = value.rstrip('\n')
         data[key.strip()] = value.strip()
-#    print json.dumps(data)
-#    print data[u"comm
+
     client = MongoClient("mongodb://sitedata:Gibson9371@172.18.64.35/sitesheets")
     db = client.get_default_database()
     sitedata = db['sitedata']
