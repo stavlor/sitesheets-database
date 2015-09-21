@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from pymongo import MongoClient
 
 useragent = "MW Database update bot 0.1, Run by Paul.Andrel@kantarmedia.com"
-site = mwclient.Site('172.18.64.38', '/')
+site = mwclient.Site('172.18.64.38', '/', clients_useragent=useragent)
 
 site.login('pandrel', '4357pja')
 
